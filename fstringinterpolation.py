@@ -34,7 +34,7 @@
 import builtins as _builtins
 import configparser
 
-__VERSION__ = "0.1"
+__VERSION__ = "0.1.0"
 
 
 # base on https://stackoverflow.com/a/54700827/1169096
