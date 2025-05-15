@@ -5,6 +5,7 @@ description = "interpolation for python's `configparser` that does f-string subs
 authors = [
  { name = "IOhannes m zmölnig", email = "zmoelnig@iem.at"}
 ]
+home-page = "https://github.com/umlaeute/FStringInterpolation"
 license = "BSD-3-Clause"
 readme = "README.md"
 requires-python = ">=3.6"
