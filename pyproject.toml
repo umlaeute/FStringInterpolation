@@ -17,20 +17,19 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-[build-system]
-requires = ["setuptools>=64", "setuptools_scm>=8"]
-build-backend = "setuptools.build_meta"
-
-
-[tool.setuptools]
-dynamic.version = { attr = "fstringinterpolation.__VERSION__" }
-
 [project.urls]
 Homepage = "https://github.com/umlaeute/FStringInterpolation"
 # Documentation = ""
 Repository = "https://github.com/umlaeute/FStringInterpolation.git"
 Issues = "https://github.com/umlaeute/FStringInterpolation/issues"
 # Changelog = ""
+
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_file = "_version.py"
 
 [tool.pytest.ini_options]
 pythonpath = "."
