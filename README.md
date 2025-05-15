@@ -3,7 +3,7 @@ FStringInterpolation - interpolation `configparser` that does f-string substitut
 
 Extended *Interpolation* for the normal [Python `configparser`](https://docs.python.org/3/library/configparser.html)
 
-- Apply f-string interpolation on values
+- Apply [f-string](https://docs.python.org/3/reference/lexical_analysis.html#f-strings) interpolation on values.
 
 
 ## Usage
@@ -15,17 +15,19 @@ Extended *Interpolation* for the normal [Python `configparser`](https://docs.pyt
 >>> config.read_string("""
 [DEFAULT]
 _pi = 3.141592653589793238462643383279502884197169399375105820974944592307816406286
-
 [full]
 pi = {_pi}
-
 [short]
 pi = {float(_pi):.2f}
+[stringy]
+pi = {_pi:.2s}
 """)
 >>> config["full"]["pi"]
 '3.141592653589793238462643383279502884197169399375105820974944592307816406286'
 >>> config["short"]["pi"]
 '3.14'
+>>> config["stringy"]["pi"]
+'3.'
 ```
 
 ## More examples
@@ -37,14 +39,10 @@ This will automatically create the proper *title*, depending on the values of *a
 [DEFAULT]
 a = 7
 title = {a} is {"more" if float(a) > float(b) else "less"} than {b}
-
 [A]
 b = 12
-
 [B]
 b = 3
-
-
 [C]
 a = 3.14
 b = 2.71
@@ -59,7 +57,18 @@ b = 2.71
 | C       | "3.14 is more than 2.71" |
 
 
-## Caveats
+# Installing
+
+TODO
+
+# Building
+
+
+```sh
+python3 -m build
+```
+
+# Caveats
 - no recursion!
   e.g. the following is invalid:
   ```ini
@@ -91,4 +100,16 @@ b = 2.71
   sum = 22
   [bad recursion]
   sum = {sum(float(_) for _ in [a,b])}
+  ```
+
+- currently, recursion is somewhat broken (unless the interpolated values are re-used as strings):
+  ```ini
+  [test]
+  a = 3
+  # b becomes '4'
+  b = {int(a)+1}
+  # GOOD: c becomes '34' ('3'+'4')
+  c = {a+b}
+  # BAD: d should become 7, but really fails with "int('{int(a)+1)}')"
+  d = {int(a)+int(b)}
   ```
