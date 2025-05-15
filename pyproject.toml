@@ -31,3 +31,6 @@ Homepage = "https://github.com/umlaeute/FStringInterpolation"
 Repository = "https://github.com/umlaeute/FStringInterpolation.git"
 Issues = "https://github.com/umlaeute/FStringInterpolation/issues"
 # Changelog = ""
+
+[tool.pytest.ini_options]
+pythonpath = "."
