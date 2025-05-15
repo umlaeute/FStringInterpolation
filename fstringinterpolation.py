@@ -88,6 +88,7 @@ class FStringInterpolation(configparser.Interpolation):
         v0 = value
         v1 = None
         depth = 0
+        ex = None
         try:
             while v0 != (v1 := _fstr_eval(v0, {}, defaults)):
                 v0 = v1
@@ -97,7 +98,17 @@ class FStringInterpolation(configparser.Interpolation):
         except SyntaxError as e:
             raise configparser.InterpolationSyntaxError(option, section, str(e))
         except NameError as e:
-            raise configparser.InterpolationMissingOptionError(option, section, str(e))
+            ex = configparser.InterpolationMissingOptionError(
+                option, section, value, str(e)
+            )
+        except TypeError as e:
+            ex = configparser.InterpolationError(option, section, str(e))
+        except ValueError as e:
+            # raise ValueError(f"eval({v0!r}, locals={defaults}) -> {e!s}")
+            ex = configparser.InterpolationError(option, section, str(e))
+
+        if ex is not None:
+            raise ex
 
         return v0
 
