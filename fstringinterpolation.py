@@ -34,6 +34,8 @@
 import builtins as _builtins
 import configparser
 
+__VERSION__ = "0.1"
+
 
 # base on https://stackoverflow.com/a/54700827/1169096
 def _fstr_eval(
