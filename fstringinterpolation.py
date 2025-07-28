@@ -75,7 +75,7 @@ def _fstr_eval(
     # not to be an apostrophe.
 
     _prefix = "rf" if raw_string else "f"
-    return eval(_prefix + _TA + _s + _TA, globals=globals, locals=locals) + _ra
+    return eval(_prefix + _TA + _s + _TA, globals, locals) + _ra
 
 
 class FStringInterpolation(configparser.Interpolation):
