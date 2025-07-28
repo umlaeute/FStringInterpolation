@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/FStringInterpolation  # Replace FStringInterpolation with your PyPI project name
+      url: https://pypi.org/p/FStringInterpolation
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
