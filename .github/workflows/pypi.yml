@@ -16,6 +16,9 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.x"
+    - name: Fix version of PyPi
+      run: >-
+        test ! -e pyproject.toml || (sed -e 's|^\(.tool\.setuptools_scm\>.*\)|\1\nlocal_scheme = "no-local-version"|' -i pyproject.toml; git update-index --assume-unchanged pyproject.toml)
     - name: Install pypa/build
       run: >-
         python3 -m
