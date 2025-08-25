@@ -9,7 +9,7 @@ import fstringinterpolation
 
 pi = "3.1415926535897932384626433832795"
 
-inistring = """
+inistring = r"""
 [DEFAULT]
 a = %s
 title = {a} is {"more" if float(a) > float(b) else "less"} than {b}
@@ -42,6 +42,9 @@ realsum = {sum(float(_) for _ in [a,b])}
 [badsum]
 b = 5
 sum = {sum(float(_) for _ in [a,b])}
+[backslash]
+forward = /1
+backward = \1
 """ % (
     pi,
 )
@@ -50,9 +53,13 @@ sum = {sum(float(_) for _ in [a,b])}
 ## helpers
 
 
-def config_from_string(configstring: str):
+def config_from_string(configstring: str, raw_string=False):
+    if raw_string:
+        interpolation = fstringinterpolation.FStringInterpolationRaw
+    else:
+        interpolation = fstringinterpolation.FStringInterpolation
     cfg = configparser.ConfigParser(
-        interpolation=fstringinterpolation.FStringInterpolation()
+        interpolation=interpolation()
     )
     cfg.read_string(configstring)
     return cfg
@@ -60,6 +67,10 @@ def config_from_string(configstring: str):
 
 def get(section, option):
     cfg = config_from_string(inistring)
+    return cfg[section][option]
+
+def getraw(section, option):
+    cfg = config_from_string(inistring, raw_string=True)
     return cfg[section][option]
 
 
@@ -206,3 +217,12 @@ def test_badsum_b():
 def test_badsum_sum():
     with pytest.raises(configparser.InterpolationError):
         get("badsum", "sum")
+
+def test_backslash_forward():
+    assert get("backslash", "forward") == "/1"
+
+def test_backslash_back():
+    assert get("backslash", "backward") == "\1"
+
+def test_backslash_backraw():
+    assert getraw("backslash", "backward") == r"\1"
