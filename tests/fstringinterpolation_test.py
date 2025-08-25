@@ -59,9 +59,7 @@ def read_config(configstring: str, raw_string=False, filename=None):
     else:
         interpolation = fstringinterpolation.FStringInterpolation
 
-    cfg = configparser.ConfigParser(
-        interpolation=interpolation()
-    )
+    cfg = configparser.ConfigParser(interpolation=interpolation())
     if filename:
         cfg.read([filename])
     else:
@@ -73,160 +71,91 @@ def get(section, option):
     cfg = read_config(inistring)
     return cfg[section][option]
 
+
 def getraw(section, option):
     cfg = read_config(inistring, raw_string=True)
     return cfg[section][option]
 
 
 ## the actual tests
-def test_basic_a():
-    assert get("basic", "a") == pi
+section_option_value = [
+    ("basic", "a", pi),
+    ("basic", "b", f"two_%(a)s"),
+    ("basic", "c", f"three_%(b)s"),
+    ("fstring", "a", pi),
+    ("fstring", "b", f"two_{pi}"),
+    ("fstring", "c", f"three_two_{pi}"),
+    ("more", "a", pi),
+    ("more", "b", "0"),
+    ("more", "title", f"{pi} is more than 0"),
+    ("more2", "a", pi),
+    # ("more2", "title", f"{pi} is more than 0"),
+    ("less", "a", pi),
+    ("less", "b", "42"),
+    ("less", "title", f"{pi} is less than 42"),
+    ("less2", "a", pi),
+    # ("less2", "title", f"{pi} is less than 42"),
+    ("shortfloat", "a", pi),
+    ("shortfloat", "pi", f"{float(pi):.2f}"),
+    ("shortstring", "a", pi),
+    ("shortstring", "pi", pi[:2]),
+    ("sum", "a", "4"),
+    ("sum", "b", "5"),
+    ("badsum", "a", "3.1415926535897932384626433832795"),
+    ("badsum", "b", "5"),
+    ("backslash", "forward", "/1"),
+]
 
 
-def test_basic_b():
-    assert get("basic", "b") == f"two_%(a)s"
+@pytest.mark.parametrize(
+    "section,option,value",
+    section_option_value + [("backslash", "backward", "\1")],
+)
+def test_get(section, option, value):
+    assert get(section, option) == value
 
 
-def test_basic_c():
-    assert get("basic", "c") == f"three_%(b)s"
+@pytest.mark.parametrize(
+    "section,option,value",
+    section_option_value + [("backslash", "backward", r"\1")],
+)
+def test_getraw(section, option, value):
+    assert getraw(section, option) == value
 
 
-def test_fstring_a():
-    assert get("fstring", "a") == pi
+@pytest.mark.parametrize(
+    "section,option,value",
+    [
+        ("less2", "b", float(pi) + 1),
+        ("halfpi", "halfpi", float(pi) / 2),
+        ("sum", "realsum", 9),
+    ],
+)
+def test_getfloat(section, option, value):
+    assert float(get(section, option)) == value
 
 
-def test_fstring_b():
-    assert get("fstring", "b") == f"two_{pi}"
+@pytest.mark.parametrize(
+    "section,option,exception",
+    [
+        ("more", "c", KeyError),
+        ("more2", "c", KeyError),
+        ("shortfloat", "title", configparser.InterpolationMissingOptionError),
+        ("shortstring", "title", configparser.InterpolationMissingOptionError),
+        ("badhalfpi", "halfpi", configparser.InterpolationError),
+        ("badsum", "sum", configparser.InterpolationError),
+    ],
+)
+def test_raises(section, option, exception):
+    with pytest.raises(exception):
+        get(section, option)
 
 
-def test_fstring_c():
-    assert get("fstring", "c") == f"three_two_{pi}"
-
-
-def test_more_a():
-    assert get("more", "a") == pi
-
-
-def test_more_b():
-    assert get("more", "b") == "0"
-
-
-def test_more_c():
-    with pytest.raises(KeyError):
-        get("more", "c")
-
-
-def test_more_title():
-    assert get("more", "title") == f"{pi} is more than 0"
-
-
-def test_more2_a():
-    assert get("more2", "a") == pi
-
-
-def test_more2_b():
-    assert float(get("more2", "b")) == float(pi) - 1
-
-
-def test_more2_c():
-    with pytest.raises(KeyError):
-        get("more2", "c")
-
-
-@pytest.mark.skip(reason="needs fixing")
+@pytest.mark.xfail(reason="needs fixing")
 def test_more2_title():
     assert get("more2", "title") == f"{pi} is more than 0"
 
 
-def test_less_a():
-    assert get("less", "a") == pi
-
-
-def test_less_b():
-    assert get("less", "b") == "42"
-
-
-def test_less_title():
-    assert get("less", "title") == f"{pi} is less than 42"
-
-
-def test_less2_a():
-    assert get("less2", "a") == pi
-
-
-def test_less2_b():
-    assert float(get("less2", "b")) == float(pi) + 1
-
-
-@pytest.mark.skip(reason="needs fixing")
+@pytest.mark.xfail(reason="needs fixing")
 def test_less2_title():
     assert get("less2", "title") == f"{pi} is less than 42"
-
-
-def test_shortfloat_a():
-    assert get("shortfloat", "a") == pi
-
-
-def test_shortfloat_pi():
-    assert get("shortfloat", "pi") == f"{float(pi):.2f}"
-
-
-def test_shortfloat_title():
-    with pytest.raises(configparser.InterpolationMissingOptionError):
-        get("shortfloat", "title")
-
-
-def test_shortstring_a():
-    assert get("shortstring", "a") == pi
-
-
-def test_shortstring_pi():
-    assert get("shortstring", "pi") == pi[:2]
-
-
-def test_shortstring_title():
-    with pytest.raises(configparser.InterpolationMissingOptionError):
-        get("shortstring", "title")
-
-
-def test_halfpi_halfpi():
-    assert float(get("halfpi", "halfpi")) == float(pi) / 2
-
-
-def test_badhalfpi_badhalfpi():
-    with pytest.raises(configparser.InterpolationError):
-        get("badhalfpi", "halfpi")
-
-
-def test_sum_a():
-    assert get("sum", "a") == "4"
-
-
-def test_sum_b():
-    assert get("sum", "b") == "5"
-
-
-def test_sum_title():
-    assert float(get("sum", "realsum")) == 9
-
-
-def test_badsum_a():
-    assert get("badsum", "a") == "3.1415926535897932384626433832795"
-
-
-def test_badsum_b():
-    assert get("badsum", "b") == "5"
-
-
-def test_badsum_sum():
-    with pytest.raises(configparser.InterpolationError):
-        get("badsum", "sum")
-
-def test_backslash_forward():
-    assert get("backslash", "forward") == "/1"
-
-def test_backslash_back():
-    assert get("backslash", "backward") == "\1"
-
-def test_backslash_backraw():
-    assert getraw("backslash", "backward") == r"\1"
