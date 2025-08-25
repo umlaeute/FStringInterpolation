@@ -142,6 +142,7 @@ value2 = two_{value}
 value3 = three_{value2}
 value_raw = {value!r}
 value_int = {int(float(value))}
+backslash = \\1
 
 [basic]
 value2 = two_%(value)s
@@ -149,7 +150,7 @@ value3 = three_%(value2)s
 
     """
 
-    for interpolation in [configparser.BasicInterpolation, FStringInterpolation]:
+    for interpolation in [configparser.BasicInterpolation, FStringInterpolation, FStringInterpolationRaw]:
         print(f"\n==================== {interpolation} =============")
         cfg = configparser.ConfigParser(interpolation=interpolation())
         _dump(cfg, sys.argv[1:], myini)
