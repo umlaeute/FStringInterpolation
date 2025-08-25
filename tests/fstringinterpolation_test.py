@@ -159,3 +159,6 @@ def test_more2_title():
 @pytest.mark.xfail(reason="needs fixing")
 def test_less2_title():
     assert get("less2", "title") == f"{pi} is less than 42"
+
+def test_fail():
+    assert 2==1
