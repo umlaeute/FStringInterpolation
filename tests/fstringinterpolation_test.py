@@ -53,24 +53,28 @@ backward = \1
 ## helpers
 
 
-def config_from_string(configstring: str, raw_string=False):
+def read_config(configstring: str, raw_string=False, filename=None):
     if raw_string:
         interpolation = fstringinterpolation.FStringInterpolationRaw
     else:
         interpolation = fstringinterpolation.FStringInterpolation
+
     cfg = configparser.ConfigParser(
         interpolation=interpolation()
     )
-    cfg.read_string(configstring)
+    if filename:
+        cfg.read([filename])
+    else:
+        cfg.read_string(configstring)
     return cfg
 
 
 def get(section, option):
-    cfg = config_from_string(inistring)
+    cfg = read_config(inistring)
     return cfg[section][option]
 
 def getraw(section, option):
-    cfg = config_from_string(inistring, raw_string=True)
+    cfg = read_config(inistring, raw_string=True)
     return cfg[section][option]
 
 
