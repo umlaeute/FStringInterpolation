@@ -80,6 +80,7 @@ def _fstr_eval(
 
 class FStringInterpolation(configparser.Interpolation):
     """Interpolation that can use f-strings"""
+    _raw_string = False
 
     def before_get(self, parser, section, option, value, defaults):
         v0 = value
@@ -87,7 +88,7 @@ class FStringInterpolation(configparser.Interpolation):
         depth = 0
         ex = None
         try:
-            while v0 != (v1 := _fstr_eval(v0, {}, defaults)):
+            while v0 != (v1 := _fstr_eval(v0, {}, defaults, raw_string=self._raw_string)):
                 v0 = v1
                 depth += 1
                 if depth > configparser.MAX_INTERPOLATION_DEPTH:
@@ -111,10 +112,13 @@ class FStringInterpolation(configparser.Interpolation):
 
     def before_set(self, parser, section, option, value):
         try:
-            _fstr_eval(value, {}, {})
+            _fstr_eval(value, {}, {}, raw_string=self._raw_string)
         except SyntaxError:
             raise ValueError(f"invalid f-expression {value!r}")
         return value
+
+class FStringInterpolationRaw(FStringInterpolation):
+    _raw_string = True
 
 
 def _main():
